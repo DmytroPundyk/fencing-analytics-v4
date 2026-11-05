@@ -137,7 +137,7 @@ async function openSavedAthleteStats(savedAthleteId){
  try{
   const ar=await supabaseClient.from('bout_analyses').select('id,competition_id,bout_id,athlete_user_id,events,status,updated_at').eq('athlete_user_id',athlete.athlete_user_id).order('updated_at',{ascending:false});
   if(ar.error)throw ar.error;
-  const analyses=ar.data||[];const boutIds=[...new Set(analyses.map(a=>a.bout_id).filter(Boolean))];
+  const analyses=ar.data||[];const analyzedBoutIds=[...new Set(analyses.filter(a=>Array.isArray(a.events)&&a.events.length>0).map(a=>a.bout_id).filter(Boolean))];
   const events=analyses.flatMap(a=>(Array.isArray(a.events)?a.events:[]).map(e=>({...e,_analysisStatus:a.status,_competitionId:a.competition_id,_boutId:a.bout_id})));
   // Load all competitions owned by this coach and their normalized bout rows.
   const cr=await supabaseClient.from('competitions').select('id,name').eq('coach_id',state.cloudUser.id).order('event_date',{ascending:false});
@@ -150,9 +150,9 @@ async function openSavedAthleteStats(savedAthleteId){
   }
   const inferredNames=[...new Set([athlete.display_name,...events.map(e=>e.athlete)].filter(Boolean))];
   const matches=allCompetitionBouts.filter(b=>[b.fencer1?.name,b.fencer2?.name].some(n=>n&&inferredNames.some(x=>keyName(x)===keyName(n))));
-  const analyzedMatches=matches.filter(b=>boutIds.includes(b.id));
+  const analyzedMatches=matches.filter(b=>analyzedBoutIds.includes(b.id));
   // Preserve analyzed bouts if a competition row is no longer in the coach's current competition list.
-  const missingIds=boutIds.filter(id=>!analyzedMatches.some(b=>b.id===id));
+  const missingIds=analyzedBoutIds.filter(id=>!analyzedMatches.some(b=>b.id===id));
   if(missingIds.length){
    const br=await supabaseClient.from('competition_bouts').select('id,competition_id,bout_key,bout_data').in('id',missingIds);
    if(br.error)throw br.error;
@@ -163,6 +163,34 @@ async function openSavedAthleteStats(savedAthleteId){
   const select=$('statsAthlete');if(![...select.options].some(o=>o.value===boutAthleteName))select.add(new Option(boutAthleteName,boutAthleteName));select.value=boutAthleteName;goTab('stats');updateStats();
   st.className='status ok';st.textContent=`Відкрито статистику ${boutAthleteName}: ${analyses.length} аналізів, ${events.length} подій, ${matches.length} боїв у змаганнях. Дані поточного змагання не змінено.`;
  }catch(e){st.className='status err';st.textContent='Не вдалося завантажити статистику спортсмена: '+e.message;}
+}
+
+async function openSavedAthleteBout(boutId){
+ if(!boutId||!state.savedAthleteStats)return;
+ const status=$('myAthletesStatus');
+ try{
+  const rowResult=await supabaseClient.from('competition_bouts').select('id,competition_id,bout_key,bout_data').eq('id',boutId).maybeSingle();
+  if(rowResult.error)throw rowResult.error;
+  const row=rowResult.data;if(!row||!row.bout_data)throw new Error('Бій не знайдено у хмарі.');
+  const compResult=await supabaseClient.from('competitions').select('id,name').eq('id',row.competition_id).single();
+  if(compResult.error)throw compResult.error;
+  const athleteStats=state.savedAthleteStats;
+  const analysis=athleteStats.analyses.find(a=>a.bout_id===boutId)||null;
+  const bout={...row.bout_data};
+  state.cloudCompetitionId=row.competition_id;
+  state.cloudBoutIds={[row.bout_key]:row.id};
+  state.data={competition:{name:compResult.data.name},athletes:[],matches:[bout]};
+  state.events=analysis&&Array.isArray(analysis.events)?analysis.events:[];
+  state.selectedBoutKey=row.bout_key;
+  state.athleteMode=false;
+  goTab('analysis');
+  openBout(0);
+  // openBout resets coach-side selection state; restore the cloud analysis reference afterwards.
+  state.cloudAnalysisId=analysis?.id||null;
+  state.currentAnalysisStatus=analysis?.status||null;
+ }catch(e){
+  if(status){status.className='status err';status.textContent='Не вдалося відкрити бій для аналізу: '+e.message;}
+ }
 }
 
 async function saveAthleteContact(name,email,quiet=false){if(state.cloudRole!=='coach'||!state.cloudUser)throw new Error('Увійди як тренер.');email=String(email||'').trim().toLowerCase();name=String(name||'').trim();if(!/^\S+@\S+\.\S+$/.test(email))throw new Error('Вкажи коректну електронну адресу.');let athleteUserId=null;const pr=await supabaseClient.from('profiles').select('id,display_name,role,email').ilike('email',email).maybeSingle();if(pr.error)throw pr.error;if(pr.data&&pr.data.role==='athlete'){athleteUserId=pr.data.id;if(!name)name=pr.data.display_name||''}const up=await supabaseClient.from('coach_athletes').upsert({coach_id:state.cloudUser.id,email,display_name:name,athlete_user_id:athleteUserId,updated_at:new Date().toISOString()},{onConflict:'coach_id,email'});if(up.error)throw up.error;await refreshMyAthletes();if(!quiet&&$('myAthletesStatus')){$('myAthletesStatus').className='status ok';$('myAthletesStatus').textContent=athleteUserId?'Спортсмен збережений. Акаунт уже зареєстрований.':'Email збережено. Після реєстрації спортсмена він буде прив’язаний до акаунта під час наступного призначення.'}}
@@ -354,13 +382,13 @@ function updateStats(){
  const classify=(source)=>{const won=[],lost=[],other=[];source.forEach((b,index)=>{const n1=b.fencer1?.name||'',n2=b.fencer2?.name||'';const isF1=keyName(n1)===keyName(selected),isF2=keyName(n2)===keyName(selected);if(!isF1&&!isF2)return;const winner=b.winner?.name||'';const item={b,index,opponent:isF1?(n2||'—'):(n1||'—')};if(!winner){other.push(item);return;}if(keyName(winner)===keyName(selected))won.push(item);else if(keyName(winner)===keyName(n1)||keyName(winner)===keyName(n2))lost.push(item);else other.push(item);});return {won,lost,other};};
  const full=selected?classify(all):{won:[],lost:[],other:[]};const done=selected?classify(analyzed):{won:[],lost:[],other:[]};
  $('wonBoutCount').textContent=full.won.length;$('lostBoutCount').textContent=full.lost.length;$('allBoutCount').textContent=full.won.length+full.lost.length+full.other.length;
- const render=(items,empty,includeCompetition=false)=>items.length?'<table><thead><tr>'+(includeCompetition?'<th>Змагання</th>':'')+'<th>Етап</th><th>Суперник</th><th>Рахунок</th></tr></thead><tbody>'+items.map(({b,opponent})=>`<tr>`+(includeCompetition?`<td>${esc(b._competitionName||'Поточне змагання')}</td>`:'')+`<td>${esc(b.stage||b.pool||b.phase||'—')}</td><td>${esc(opponent)}</td><td class="nowrap">${esc(scoreText(b))}</td></tr>`).join('')+'</tbody></table>':`<p class="muted" style="padding:10px">${esc(empty)}</p>`;
+ const render=(items,empty,includeCompetition=false,withAnalysisAction=false)=>items.length?'<table><thead><tr>'+(includeCompetition?'<th>Змагання</th>':'')+'<th>Етап</th><th>Суперник</th><th>Рахунок</th>'+(withAnalysisAction?'<th></th>':'')+'</tr></thead><tbody>'+items.map(({b,opponent})=>`<tr>`+(includeCompetition?`<td>${esc(b._competitionName||'Поточне змагання')}</td>`:'')+`<td>${esc(b.stage||b.pool||b.phase||'—')}</td><td>${esc(opponent)}</td><td class="nowrap">${esc(scoreText(b))}</td>`+(withAnalysisAction?`<td><button type="button" onclick="openSavedAthleteBout('${esc(b.id||'')}')">🎥 Аналіз</button></td>`:'')+`</tr>`).join('')+'</tbody></table>':`<p class="muted" style="padding:10px">${esc(empty)}</p>`;
  const prompt='<p class="muted" style="padding:10px">Обери спортсмена вище.</p>';
  $('analyzedWonBoutList').innerHTML=selected?render(done.won,'Проаналізованих виграних боїв поки немає.',cloudMode):prompt;
  $('analyzedLostBoutList').innerHTML=selected?render(done.lost,'Проаналізованих програних боїв поки немає.',cloudMode):prompt;
- $('wonBoutList').innerHTML=selected?render(full.won,'Виграних боїв у завантажених змаганнях не знайдено.',cloudMode):prompt;
- $('lostBoutList').innerHTML=selected?render(full.lost,'Програних боїв у завантажених змаганнях не знайдено.',cloudMode):prompt;
- $('otherBoutList').innerHTML=selected?render(full.other,'Немає боїв без визначеного результату.',cloudMode):prompt;
+ $('wonBoutList').innerHTML=selected?render(full.won,'Виграних боїв у завантажених змаганнях не знайдено.',cloudMode,cloudMode):prompt;
+ $('lostBoutList').innerHTML=selected?render(full.lost,'Програних боїв у завантажених змаганнях не знайдено.',cloudMode,cloudMode):prompt;
+ $('otherBoutList').innerHTML=selected?render(full.other,'Немає боїв без визначеного результату.',cloudMode,cloudMode):prompt;
 }
 function renderAll(){if(!state.data)return;renderSummary();renderAthletes();renderBouts();renderStatsAthletes();updateStats()}
 $('saveAthleteContactBtn').addEventListener('click',addMyAthleteFromForm);// Wire up sign-in, sign-out, cloud save/load, and other account controls.
