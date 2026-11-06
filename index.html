@@ -29,7 +29,7 @@
 html{background:var(--fa-bg)}body{background:radial-gradient(ellipse at 80% -20%,#1d3552 0,transparent 45%),var(--fa-bg);color:var(--fa-text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
 header{position:fixed;z-index:8;left:0;top:0;width:248px;height:82px;padding:16px 20px;background:var(--fa-side);border-right:1px solid var(--fa-line);display:flex;align-items:center;gap:12px}
 .brand-mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--fa-teal),var(--fa-blue));color:#0d1a2a;display:grid;place-items:center;font-weight:900;font-size:17px;letter-spacing:-1px;box-shadow:0 6px 20px #22d3c533}
-header h1{font-size:16px;margin:0;color:#fff;letter-spacing:.2px}header p{font-size:11px;color:var(--fa-muted);margin:2px 0 0}.header-right{display:none}
+header h1{font-size:16px;margin:0;color:#fff;letter-spacing:.2px}header p{font-size:11px;color:var(--fa-muted);margin:2px 0 0}.header-right{display:flex;position:fixed;top:18px;right:24px;z-index:20;align-items:center;gap:8px}.header-right>span{display:none}
 nav{position:fixed;z-index:7;left:0;top:82px;bottom:0;width:248px;padding:20px 13px;background:var(--fa-side);border:0;border-right:1px solid var(--fa-line);display:flex;flex-direction:column;align-items:stretch;gap:6px;overflow-y:auto}
 nav button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border:1px solid transparent;background:transparent;color:#b8c7d8;border-radius:10px;font-weight:600;transition:.18s ease}
 nav button:hover{background:#223650;color:#fff;border-color:#304963}nav button.active{background:linear-gradient(100deg,#173f50,#1c3958);border-color:#285c70;color:#fff;box-shadow:inset 3px 0 var(--fa-teal)}
@@ -57,6 +57,11 @@ button{background:#293b53;color:#e8f1fa;border:1px solid #405873;border-radius:9
 .language-toggle{min-width:48px;padding:7px 11px;border:1px solid var(--fa-border,#3b526f);border-radius:9px;background:var(--fa-inner,#293b53);color:var(--fa-text,#f4f7fb);font-weight:800;cursor:pointer}
 #cloudAuthForm.hidden{display:none!important}
 #cloudSignedIn.hidden{display:none!important}
+
+/* Language switch must remain visible in the top-right corner of the app */
+.header-right{display:flex!important;position:fixed;top:18px;right:24px;z-index:50;align-items:center;gap:8px}
+.header-right>span{display:none!important}
+.language-toggle{display:inline-flex;align-items:center;justify-content:center;min-width:54px;min-height:38px;background:#293b53;color:#f4f7fb;border:1px solid #4b6687;border-radius:10px;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,.25)}
 </style>
 </head>
 <body>
