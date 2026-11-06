@@ -58,16 +58,15 @@ button{background:#293b53;color:#e8f1fa;border:1px solid #405873;border-radius:9
 #cloudAuthForm.hidden{display:none!important}
 #cloudSignedIn.hidden{display:none!important}
 
-/* Language switch must remain visible in the top-right corner of the app */
-.header-right{display:flex!important;position:fixed;top:18px;right:24px;z-index:50;align-items:center;gap:8px}
-.header-right>span{display:none!important}
-.language-toggle{display:inline-flex;align-items:center;justify-content:center;min-width:54px;min-height:38px;background:#293b53;color:#f4f7fb;border:1px solid #4b6687;border-radius:10px;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+/* Language switch sits in the main navigation, immediately after Statistics */
+.header-right{display:none!important}
+nav .nav-language-toggle{position:static!important;display:inline-flex!important;align-items:center;justify-content:center;min-width:54px;min-height:38px;margin-left:0;background:#293b53;color:#f4f7fb;border:1px solid #4b6687;border-radius:10px;font-weight:800;box-shadow:none}
 </style>
 </head>
 <body>
-<header><div class="brand-mark">FA</div><div><h1>Fencing Analytics</h1><p>Панель тренера · аналітика фехтування</p></div><div class="header-right"><button type="button" id="languageToggle" class="language-toggle" aria-label="Switch language">EN</button><span class="live-dot"></span><span>Cloud workspace</span></div></header>
+<header><div class="brand-mark">FA</div><div><h1>Fencing Analytics</h1><p>Панель тренера · аналітика фехтування</p></div></header>
 <nav aria-label="Головна навігація">
-<button class="active" data-tab="dashboard"><span class="nav-icon">▦</span>Огляд</button><button data-tab="competition"><span class="nav-icon">◈</span>Змагання / імпорт</button><button id="athleteDashboardTab" data-tab="athleteDashboard" class="hidden">Мій кабінет</button><button id="coachReviewTab" data-tab="coachReview" class="hidden"><span class="nav-icon">✓</span>На перевірці</button><button data-tab="athletes"><span class="nav-icon">♙</span>Спортсмени</button><button data-tab="bouts"><span class="nav-icon">⚔</span>Бої</button><button data-tab="analysis"><span class="nav-icon">◉</span>Аналіз бою</button><button data-tab="stats"><span class="nav-icon">▥</span>Статистика</button><div class="nav-caption">КОНТРОЛЬ</div>
+<button class="active" data-tab="dashboard"><span class="nav-icon">▦</span>Огляд</button><button data-tab="competition"><span class="nav-icon">◈</span>Змагання / імпорт</button><button id="athleteDashboardTab" data-tab="athleteDashboard" class="hidden">Мій кабінет</button><button id="coachReviewTab" data-tab="coachReview" class="hidden"><span class="nav-icon">✓</span>На перевірці</button><button data-tab="athletes"><span class="nav-icon">♙</span>Спортсмени</button><button data-tab="bouts"><span class="nav-icon">⚔</span>Бої</button><button data-tab="analysis"><span class="nav-icon">◉</span>Аналіз бою</button><button data-tab="stats"><span class="nav-icon">▥</span>Статистика</button><button type="button" id="languageToggle" class="language-toggle nav-language-toggle" aria-label="Switch language">EN</button><div class="nav-caption">КОНТРОЛЬ</div>
 </nav>
 <main>
 <section id="dashboard" class="tab active">
