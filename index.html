@@ -75,6 +75,15 @@ nav .nav-language-toggle{position:static!important;display:inline-flex!important
 .bout-chat-compose textarea{flex:1;min-width:0;resize:vertical}
 .bout-chat-compose button{white-space:nowrap}
 @media(max-width:600px){.chat-message{max-width:94%}.bout-chat-compose{flex-direction:column;align-items:stretch}.bout-chat-compose button{width:100%}}
+
+.stats-competition-group,.stats-bout-group{display:block;border:1px solid #354a63;border-radius:11px;background:#17283d;margin:10px 0;padding:12px}
+.stats-competition-group>summary,.stats-bout-group>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none}
+.stats-competition-group>summary::-webkit-details-marker,.stats-bout-group>summary::-webkit-details-marker{display:none}
+.stats-competition-group>summary:after,.stats-bout-group>summary:after{content:'＋';color:var(--fa-teal);font-weight:800}
+.stats-competition-group[open]>summary:after,.stats-bout-group[open]>summary:after{content:'−'}
+.stats-competition-group>.stats-bout-group{margin:12px 0 0 12px;background:#1c2d43}
+.stats-bout-actions{display:flex;justify-content:flex-end;gap:8px;margin:10px 0}
+.stats-bout-group .scroll{max-height:360px}
 </style>
 </head>
 <body>
@@ -230,14 +239,14 @@ async function openSavedAthleteStats(savedAthleteId){
  if(!athlete||!athlete.athlete_user_id){const st=$('myAthletesStatus');st.className='status warn';st.textContent='Цей спортсмен ще не має прив’язаного акаунта. Після реєстрації онови список.';return;}
  const st=$('myAthletesStatus');st.className='status';st.textContent=`Завантажую статистику ${athlete.display_name||athlete.email}…`;
  try{
-  const ar=await supabaseClient.from('bout_analyses').select('id,competition_id,bout_id,athlete_user_id,events,status,updated_at').eq('athlete_user_id',athlete.athlete_user_id).order('updated_at',{ascending:false});
+  const ar=await supabaseClient.from('bout_analyses').select('id,competition_id,bout_id,athlete_user_id,events,status,version,updated_at').eq('athlete_user_id',athlete.athlete_user_id).order('updated_at',{ascending:false});
   if(ar.error)throw ar.error;
   const analyses=ar.data||[];
   const meaningfulEvent=e=>!!(e&&typeof e==='object'&&String(e.athlete||'').trim()&&String(e.action||'').trim()&&String(e.zone||'').trim());
   const analyzedBoutIds=[...new Set(analyses.filter(a=>Array.isArray(a.events)&&a.events.some(meaningfulEvent)).map(a=>a.bout_id).filter(Boolean))];
   const events=analyses.flatMap(a=>(Array.isArray(a.events)?a.events:[]).filter(meaningfulEvent).map((e,i)=>({...e,_analysisId:a.id,_analysisVersion:a.version,_analysisStatus:a.status,_competitionId:a.competition_id,_boutId:a.bout_id,_eventIndex:i})));
   // Load all competitions owned by this coach and their normalized bout rows.
-  const cr=await supabaseClient.from('competitions').select('id,name').eq('coach_id',state.cloudUser.id).order('event_date',{ascending:false});
+  const cr=await supabaseClient.from('competitions').select('id,name,event_date').eq('coach_id',state.cloudUser.id).order('event_date',{ascending:false});
   if(cr.error)throw cr.error;
   const compIds=(cr.data||[]).map(c=>c.id);let allCompetitionBouts=[];
   if(compIds.length){
@@ -640,12 +649,76 @@ async function deleteSavedAthleteEvent(analysisId,eventId,eventIndex){
  }catch(e){cloudStatus('Не вдалося видалити подію: '+e.message,'err');}
 }
 
+
+function renderGroupedSavedEvents(events){
+ const host=$('statsEventsManager');
+ if(!host)return;
+ const payload=state.savedAthleteStats||{};
+ const analyses=payload.analyses||[];
+ const boutMap=new Map();
+ for(const e of events){
+  const bid=e._boutId||'unknown';
+  if(!boutMap.has(bid)){
+   const bout=(payload.matches||[]).find(b=>b.id===bid)||(payload.analyzedMatches||[]).find(b=>b.id===bid);
+   const analysis=analyses.find(a=>a.id===e._analysisId)||null;
+   boutMap.set(bid,{bout,analysis,events:[],competitionId:e._competitionId||bout?._competitionId||'unknown'});
+  }
+  const group=boutMap.get(bid);
+  if(!group.analysis&&e._analysisId)group.analysis=analyses.find(a=>a.id===e._analysisId)||null;
+  group.events.push(e);
+ }
+ const competitions=new Map();
+ for(const [boutId,g] of boutMap){
+  const compId=g.competitionId||'unknown';
+  if(!competitions.has(compId))competitions.set(compId,{bouts:[],name:g.bout?._competitionName||'Змагання',date:''});
+  const comp=competitions.get(compId);
+  const meta=(payload.competitions||[]).find(c=>c.id===compId);
+  if(meta){comp.name=meta.name||comp.name;comp.date=meta.event_date||'';}
+  comp.bouts.push({boutId,...g});
+ }
+ const sorted=[...competitions.entries()].sort((a,b)=>{
+  const da=a[1].date||'',db=b[1].date||'';
+  return db.localeCompare(da)||a[1].name.localeCompare(b[1].name,'uk');
+ });
+ const html=sorted.map(([compId,comp])=>{
+  const boutRows=comp.bouts.sort((a,b)=>{
+   const an=(a.bout?.fencer1?.name||'')+' '+(a.bout?.fencer2?.name||'');
+   const bn=(b.bout?.fencer1?.name||'')+' '+(b.bout?.fencer2?.name||'');
+   return an.localeCompare(bn,'uk');
+  }).map(g=>{
+   const b=g.bout||{};
+   const f1=b.fencer1?.name||'—',f2=b.fencer2?.name||'—';
+   const stage=b.stage||b.pool||b.phase||'';
+   const status=g.analysis?.status||g.events[0]?._analysisStatus||'draft';
+   const statusText=({draft:'Чернетка',submitted:'На перевірці',approved:'Затверджено',revision:'На доопрацюванні'})[status]||status;
+   const chatButton=g.analysis?.id?`<button type="button" onclick="openStatsBoutChat('${esc(g.analysis.id)}','${esc(status)}','${esc(f1+' — '+f2)}')">Обговорення</button>`:'<span class="muted small">Чат недоступний</span>';
+   const eventRows=g.events.map(e=>`<tr><td>${esc(e.time||'—')}</td><td>${esc(e.action||'')}</td><td>${esc(e.zone||'')}${e.zoneDetail?' · '+esc(e.zoneDetail):''}</td><td>${esc(e.note||'')}</td><td><button class="danger" type="button" onclick="deleteSavedAthleteEvent('${esc(e._analysisId)}','${esc(e.id||'')}',${Number(e._eventIndex||0)})">Видалити</button></td></tr>`).join('');
+   return `<details class="stats-bout-group"><summary><span><strong>${esc(f1)} — ${esc(f2)}</strong><span class="muted small"> · ${g.events.length} подій · ${esc(stage)}</span></span><span class="badge ${status==='approved'?'ok':status==='submitted'?'warn':''}">${esc(statusText)}</span></summary><div class="stats-bout-actions">${chatButton}</div><div class="scroll"><table><thead><tr><th>Час</th><th>Дія</th><th>Ситуація</th><th>Примітка</th><th></th></tr></thead><tbody>${eventRows}</tbody></table></div></details>`;
+  }).join('');
+  return `<details class="stats-competition-group" open><summary><strong>${esc(comp.name)}</strong><span class="muted small">${esc(comp.date)} · ${comp.bouts.length} боїв</span></summary>${boutRows}</details>`;
+ }).join('');
+ host.innerHTML=events.length?'<h3>Розмічені бої — за змаганнями</h3><p class="hint">Загальна статистика вище враховує всі події з усіх змагань. Розгорни змагання та окремий бій, щоб переглянути події або відкрити обговорення.</p>'+html:'<h3>Розмічені бої</h3><p class="muted">У цього спортсмена ще немає розмічених подій.</p>';
+}
+async function openStatsBoutChat(analysisId,status,boutTitle){
+ const manager=$('statsEventsManager');
+ if(!manager)return;
+ let panel=$('statsBoutChatPanel');
+ if(!panel){
+  panel=document.createElement('div');
+  panel.id='statsBoutChatPanel';
+  panel.className='card bout-chat-card';
+  manager.appendChild(panel);
+ }
+ panel.innerHTML='<div class="bout-chat-head"><div><h3>Обговорення: '+esc(boutTitle||'Бій')+'</h3><p class="muted">Історія повідомлень цього бою</p></div></div><div id="boutChat"><p class="muted">Завантажую повідомлення…</p></div>';
+ await loadBoutChat(analysisId,status);
+ panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 function updateStats(){
  const selected=$('statsAthlete')?.value||'';const cloudMode=!!state.savedAthleteStats;
  const sourceEvents=cloudMode?state.savedAthleteStats.events:state.events;const events=sourceEvents.filter(e=>!selected||keyName(e.athlete)===keyName(selected));
  $('eventCount').textContent=events.length;const scored=events.filter(e=>e.action==='Завдав'),received=events.filter(e=>e.action==='Отримав');$('scoredCount').textContent=scored.length;$('receivedCount').textContent=received.length;
- const manager=$('statsEventsManager');if(manager){manager.innerHTML=cloudMode&&state.cloudRole==='coach'?(events.length?'<h3>Розмічені події — керування</h3><p class="hint">Можна видалити окрему подію. Зміна збережеться в хмарному аналізі та одразу перерахуються відсотки.</p><div class="scroll"><table><thead><tr><th>Бій</th><th>Час</th><th>Дія</th><th>Ситуація</th><th>Примітка</th><th></th></tr></thead><tbody>'+events.map(e=>{const bout=state.savedAthleteStats.matches.find(b=>b.id===e._boutId)||state.savedAthleteStats.analyzedMatches.find(b=>b.id===e._boutId);return '<tr><td>'+esc(bout?((bout.fencer1?.name||'—')+' — '+(bout.fencer2?.name||'—')):'Бій')+'</td><td>'+esc(e.time||'—')+'</td><td>'+esc(e.action||'')+'</td><td>'+esc(e.zone||'')+(e.zoneDetail?' · '+esc(e.zoneDetail):'')+'</td><td>'+esc(e.note||'')+'</td><td><button class="danger" type="button" onclick="deleteSavedAthleteEvent(\''+esc(e._analysisId)+'\',\''+esc(e.id||'')+'\', '+Number(e._eventIndex||0)+')">Видалити</button></td></tr>'}).join('')+'</tbody></table></div>':'<h3>Розмічені події</h3><p class="muted">У цього спортсмена ще немає розмічених подій.</p>'):'<p class="hint">Керування подіями доступне тренеру в статистиці спортсмена зі списку «Мої спортсмени».</p>'; }
- const zones=[['Атака','Attack'],['Середина доріжки','Middle'],['Захист','Defense']];for(const [action,list,prefix] of [['Завдав',scored,'scored'],['Отримав',received,'received']]){const n=list.length;for(const [zone,suffix] of zones){const el=$(prefix+suffix+'Pct');if(el)el.textContent=(n?Math.round(list.filter(e=>e.zone===zone).length/n*100):0)+'%';}}
+ const manager=$('statsEventsManager');if(manager){if(cloudMode&&state.cloudRole==='coach')renderGroupedSavedEvents(events);else manager.innerHTML='<p class="hint">Керування подіями доступне тренеру в статистиці збереженого спортсмена.</p>';}
+  const zones=[['Атака','Attack'],['Середина доріжки','Middle'],['Захист','Defense']];for(const [action,list,prefix] of [['Завдав',scored,'scored'],['Отримав',received,'received']]){const n=list.length;for(const [zone,suffix] of zones){const el=$(prefix+suffix+'Pct');if(el)el.textContent=(n?Math.round(list.filter(e=>e.zone===zone).length/n*100):0)+'%';}}
  const all=cloudMode?state.savedAthleteStats.matches:(state.data?.matches||[]);const analyzed=cloudMode?state.savedAthleteStats.analyzedMatches:all.filter(b=>{const key=boutKey(b);return state.events.some(e=>e.boutKey===key&&keyName(e.athlete)===keyName(selected)&&e&&String(e.action||'').trim()&&String(e.zone||'').trim());});
  const classify=(source)=>{const won=[],lost=[],other=[];source.forEach((b,index)=>{const n1=b.fencer1?.name||'',n2=b.fencer2?.name||'';const isF1=keyName(n1)===keyName(selected),isF2=keyName(n2)===keyName(selected);if(!isF1&&!isF2)return;const winner=b.winner?.name||'';const item={b,index,opponent:isF1?(n2||'—'):(n1||'—')};if(!winner){other.push(item);return;}if(keyName(winner)===keyName(selected))won.push(item);else if(keyName(winner)===keyName(n1)||keyName(winner)===keyName(n2))lost.push(item);else other.push(item);});return {won,lost,other};};
  const full=selected?classify(all):{won:[],lost:[],other:[]};const done=selected?classify(analyzed):{won:[],lost:[],other:[]};
