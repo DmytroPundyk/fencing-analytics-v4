@@ -75,15 +75,6 @@ nav .nav-language-toggle{position:static!important;display:inline-flex!important
 .bout-chat-compose textarea{flex:1;min-width:0;resize:vertical}
 .bout-chat-compose button{white-space:nowrap}
 @media(max-width:600px){.chat-message{max-width:94%}.bout-chat-compose{flex-direction:column;align-items:stretch}.bout-chat-compose button{width:100%}}
-
-.stats-competition-group,.stats-bout-group{display:block;border:1px solid #354a63;border-radius:11px;background:#17283d;margin:10px 0;padding:12px}
-.stats-competition-group>summary,.stats-bout-group>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none}
-.stats-competition-group>summary::-webkit-details-marker,.stats-bout-group>summary::-webkit-details-marker{display:none}
-.stats-competition-group>summary:after,.stats-bout-group>summary:after{content:'＋';color:var(--fa-teal);font-weight:800}
-.stats-competition-group[open]>summary:after,.stats-bout-group[open]>summary:after{content:'−'}
-.stats-competition-group>.stats-bout-group{margin:12px 0 0 12px;background:#1c2d43}
-.stats-bout-actions{display:flex;justify-content:flex-end;gap:8px;margin:10px 0}
-.stats-bout-group .scroll{max-height:360px}
 </style>
 </head>
 <body>
@@ -148,7 +139,7 @@ nav .nav-language-toggle{position:static!important;display:inline-flex!important
 <section id="bouts" class="tab"><div class="card"><h2>Бої</h2><div class="grid"><div><label for="boutSearch">Пошук спортсмена</label><input id="boutSearch" placeholder="Наприклад, BAZADZE"></div><div><label for="stageFilter">Етап</label><select id="stageFilter"><option value="">Усі етапи</option><option value="pools">Групи</option><option value="direct_elimination">DE / Tableau</option></select></div></div><p id="boutCount" class="muted"></p><div class="scroll"><table><thead><tr><th>Етап</th><th>Спортсмен 1</th><th>Рахунок</th><th>Спортсмен 2</th><th>Переможець / статус</th><th></th></tr></thead><tbody id="boutRows"></tbody></table></div></div></section>
 <section id="analysis" class="tab"><div class="card"><h2>🎥 Аналіз бою</h2><div id="selectedBout"><p class="muted">Вибери бій у вкладці «Бої».</p></div></div></section>
 <section id="stats" class="tab"><div class="card"><h2>Статистика ударів</h2><div class="grid"><div><label for="statsAthlete">Спортсмен</label><select id="statsAthlete"><option value="">Обери спортсмена</option></select></div><div class="box"><span class="muted">Удари завдано</span><div class="big" id="scoredCount">0</div></div><div class="box"><span class="muted">Удари отримано</span><div class="big" id="receivedCount">0</div></div><div class="box"><span class="muted">Розмічено подій</span><div class="big" id="eventCount">0</div></div></div><h3>Розподіл за ситуацією</h3><h4>Нанесені удари</h4><div class="grid"><div class="box"><span class="muted">Атака</span><div class="big" id="scoredAttackPct">0%</div></div><div class="box"><span class="muted">Середина доріжки</span><div class="big" id="scoredMiddlePct">0%</div></div><div class="box"><span class="muted">Захист</span><div class="big" id="scoredDefensePct">0%</div></div></div><h4>Пропущені удари</h4><div class="grid"><div class="box"><span class="muted">Атака</span><div class="big" id="receivedAttackPct">0%</div></div><div class="box"><span class="muted">Середина доріжки</span><div class="big" id="receivedMiddlePct">0%</div></div><div class="box"><span class="muted">Захист</span><div class="big" id="receivedDefensePct">0%</div></div></div><p class="hint">Відсотки рахуються окремо: серед нанесених ударів і серед пропущених ударів вибраного спортсмена. Якщо подій певного типу немає, показано 0%.</p><div id="statsEventsManager"></div></div><div class="card"><h2>Результати проаналізованих боїв спортсмена</h2><p class="hint">Тут відображаються лише бої, для яких у системі є збережений аналіз.</p><div class="grid"><div><h3>Виграні проаналізовані бої</h3><div id="analyzedWonBoutList" class="scroll"></div></div><div><h3>Програні проаналізовані бої</h3><div id="analyzedLostBoutList" class="scroll"></div></div></div></div><div class="card"><h2>Результати боїв спортсмена — усі бої з обраних змагань</h2><div class="grid"><div class="box"><span class="muted">Виграні бої</span><div class="big" id="wonBoutCount">0</div></div><div class="box"><span class="muted">Програні бої</span><div class="big" id="lostBoutCount">0</div></div><div class="box"><span class="muted">Усього боїв</span><div class="big" id="allBoutCount">0</div></div></div><div class="grid" style="margin-top:12px"><div><h3>Виграні бої</h3><div id="wonBoutList" class="scroll"></div></div><div><h3>Програні бої</h3><div id="lostBoutList" class="scroll"></div></div></div><p class="hint">Цей список включає всі бої спортсмена в змаганнях, завантажених у твій тренерський акаунт, незалежно від того, чи були вони проаналізовані. Бої без визначеного переможця показуються окремо в загальному списку, якщо рахунок або результат ще не визначено.</p><div><h3>Інші / незавершені бої</h3><div id="otherBoutList" class="scroll"></div></div></div></section>
-<section id="coachReview" class="tab"><div class="card"><h2>Аналізи спортсменів на перевірці</h2><p class="hint">Надіслані спортсменами аналізи, які очікують на перевірку тренера.</p><div class="row"><button class="primary" onclick="refreshCoachInbox()">Оновити список</button></div><div id="coachReviewStatus" class="status">Завантаження…</div><div id="coachReviewRows"></div></div></section>
+<section id="coachReview" class="tab"><div class="card"><h2>Аналізи спортсменів на перевірці</h2><p class="hint">Тут окремо показані призначені бої, аналізи на перевірці, повернуті на доопрацювання та затверджені роботи.</p><div class="row"><button class="primary" onclick="refreshCoachInbox()">Оновити список</button></div><div id="coachReviewStatus" class="status">Завантаження…</div><div id="coachReviewRows"></div></div></section>
 <section id="athleteDashboard" class="tab">
  <div class="card"><div class="row"><div><h2>Мій кабінет спортсмена</h2><p class="muted">Твої призначені бої, історія аналізів і особиста статистика.</p></div><button onclick="refreshAthleteDashboard()">Оновити кабінет</button></div><div id="athleteDashboardStatus" class="status">Завантаження кабінету…</div></div>
  <div class="card athlete-stats-card"><div class="stats-head"><div><div class="eyebrow">PERSONAL PERFORMANCE</div><h3>Моя статистика</h3><p class="muted">Твій прогрес за збереженими боями та розміченими подіями.</p></div><div class="stats-switch" role="group" aria-label="Режим статистики"><button id="athleteStatsAnalyzed" class="active" type="button" onclick="setAthleteStatsMode('analyzed')">Проаналізовані бої</button><button id="athleteStatsAll" type="button" onclick="setAthleteStatsMode('all')">Усі бої</button></div></div><div id="athleteStatsScope" class="stats-scope">Статистика проаналізованих боїв</div><div class="stats-kpis"><div class="box"><span class="muted">Бої</span><div class="big" id="myBoutCount">0</div><small id="myBoutSub">проаналізовано</small></div><div class="box"><span class="muted">Перемоги</span><div class="big" id="myWins">0</div><small id="myWinRate">0% перемог</small></div><div class="box"><span class="muted">Нанесені удари</span><div class="big" id="myScoredCount">0</div><small>за розміткою</small></div><div class="box"><span class="muted">Пропущені удари</span><div class="big" id="myReceivedCount">0</div><small>за розміткою</small></div><div class="box"><span class="muted">Різниця ударів</span><div class="big" id="myHitDiff">0</div><small>нанесені мінус пропущені</small></div></div><div class="stats-section-title"><h4>Ефективність за ситуаціями</h4><span class="muted">Частка від усіх відповідних подій</span></div><div class="stats-situation-grid">
@@ -230,7 +221,71 @@ async function refreshAthleteDashboard(){if(!state.cloudUser||state.cloudRole!==
 async function loadAssignedBout(assignmentId,boutIdOverride){if(state.cloudRole!=='athlete')return;try{let assignment=null;if(assignmentId){const r=await supabaseClient.from('bout_assignments').select('id,competition_id,bout_id,athlete_name,video_url,team_video_url,video_start_seconds,coach_note,due_at').eq('id',assignmentId).eq('athlete_user_id',state.cloudUser.id).maybeSingle();if(r.error)throw r.error;assignment=r.data;state.currentAssignment=assignment;}else{state.currentAssignment=null}const boutId=assignment?.bout_id||boutIdOverride;if(!boutId)throw new Error('Не вказано бій.');let boutRow=null;const br=await supabaseClient.from('competition_bouts').select('id,competition_id,bout_key,bout_data').eq('id',boutId).maybeSingle();if(br.error)throw br.error;boutRow=br.data;if(!boutRow)throw new Error('Бій не знайдено або він не призначений цьому акаунту.');const cr=await supabaseClient.from('competitions').select('id,name').eq('id',boutRow.competition_id).single();if(cr.error)throw cr.error;if(!boutRow.bout_data||typeof boutRow.bout_data!=='object')throw new Error('У хмарі не знайдено дані цього бою.');state.cloudCompetitionId=cr.data.id;state.data={competition:{name:cr.data.name},athletes:[],matches:[boutRow.bout_data]};state.cloudBoutIds={[boutRow.bout_key]:boutRow.id};const ar=await supabaseClient.from('bout_analyses').select('id,events,status,version,review_comment').eq('bout_id',boutRow.id).eq('athlete_user_id',state.cloudUser.id).order('updated_at',{ascending:false}).limit(1);if(ar.error)throw ar.error;const analysis=ar.data?.[0]||null;state.athleteAssignedName=assignment?.athlete_name||(analysis?.events||[]).find(e=>e?.athlete)?.athlete||null;state.cloudAnalysisId=analysis?.id||null;state.currentAnalysisStatus=analysis?.status||null;const i=(state.data.matches||[]).findIndex(b=>boutKey(b)===boutRow.bout_key);if(i<0)throw new Error('Цей бій не знайдено у вихідних даних змагання.');const ownEvents=state.athleteAnalyses.flatMap(a=>Array.isArray(a.events)?a.events:[]).filter(e=>e.boutKey!==boutRow.bout_key);state.events=[...ownEvents,...(analysis?.events||[])];state.selectedBoutKey=boutRow.bout_key;state.athleteMode=true;openBout(i);dashboardStatus('Бій відкрито. '+(analysis?`Статус аналізу: ${statusLabel(analysis.status)}.`:'Створи першу чернетку аналізу.'),'ok')}catch(e){dashboardStatus('Не вдалося відкрити бій: '+e.message,'err');cloudStatus('Не вдалося відкрити бій: '+e.message,'err')}}
 // Load the logged-in coach's saved athlete contacts from coach_athletes.
 // My Athletes: list, manually save, auto-link registered accounts, and quick selection for assignments.
-async function refreshMyAthletes(){if(!state.cloudUser||state.cloudRole!=='coach'){const st=$('myAthletesStatus');if(st)st.textContent='Увійди як тренер, щоб керувати списком.';return}const st=$('myAthletesStatus');if(st)st.textContent='Завантажую список…';try{const r=await supabaseClient.from('coach_athletes').select('id,email,display_name,athlete_user_id,created_at').eq('coach_id',state.cloudUser.id).order('display_name',{ascending:true});if(r.error)throw r.error;state.myAthletes=r.data||[];for(const a of state.myAthletes.filter(x=>!x.athlete_user_id)){try{const pr=await supabaseClient.from('profiles').select('id,display_name,role').ilike('email',a.email).maybeSingle();if(pr.data&&pr.data.role==='athlete'){const u=await supabaseClient.from('coach_athletes').update({athlete_user_id:pr.data.id,display_name:a.display_name||pr.data.display_name||'',updated_at:new Date().toISOString()}).eq('id',a.id).eq('coach_id',state.cloudUser.id);if(!u.error){a.athlete_user_id=pr.data.id;a.display_name=a.display_name||pr.data.display_name||''}}}catch(e){}}renderMyAthletes();if(st){st.className='status';st.textContent=`Збережено спортсменів: ${state.myAthletes.length}.`;}}catch(e){if(st){st.className='status err';st.textContent='Не вдалося завантажити список: '+e.message}}}
+async function refreshMyAthletes(){
+ if(!state.cloudUser||state.cloudRole!=='coach'){
+  const st=$('myAthletesStatus');if(st)st.textContent='Увійди як тренер, щоб керувати списком.';return;
+ }
+ const st=$('myAthletesStatus');if(st)st.textContent='Завантажую список…';
+ try{
+  const r=await supabaseClient.from('coach_athletes')
+   .select('id,email,display_name,athlete_user_id,created_at')
+   .eq('coach_id',state.cloudUser.id).order('display_name',{ascending:true});
+  if(r.error)throw r.error;
+  state.myAthletes=r.data||[];
+
+  // Link previously saved email contacts to accounts that have since registered.
+  for(const a of state.myAthletes.filter(x=>!x.athlete_user_id&&x.email)){
+   try{
+    const pr=await supabaseClient.from('profiles')
+     .select('id,display_name,role,email').ilike('email',a.email).maybeSingle();
+    if(pr.error)continue;
+    if(pr.data&&pr.data.role==='athlete'){
+     const u=await supabaseClient.from('coach_athletes').update({
+      athlete_user_id:pr.data.id,
+      display_name:a.display_name||pr.data.display_name||'',
+      updated_at:new Date().toISOString()
+     }).eq('id',a.id).eq('coach_id',state.cloudUser.id);
+     if(!u.error){a.athlete_user_id=pr.data.id;a.display_name=a.display_name||pr.data.display_name||'';}
+    }
+   }catch(e){}
+  }
+
+  // Also include athletes to whom this coach has already assigned at least one bout.
+  // This does not expose unrelated registered users.
+  try{
+   const ar=await supabaseClient.from('bout_assignments')
+    .select('athlete_user_id').eq('assigned_by',state.cloudUser.id);
+   if(!ar.error){
+    const ids=[...new Set((ar.data||[]).map(x=>x.athlete_user_id).filter(Boolean))];
+    if(ids.length){
+     const pr=await supabaseClient.from('profiles')
+      .select('id,email,display_name,role').in('id',ids);
+     if(!pr.error){
+      for(const p of (pr.data||[]).filter(x=>x.role==='athlete'&&x.email)){
+       const exists=state.myAthletes.some(a=>a.athlete_user_id===p.id||String(a.email||'').toLowerCase()===String(p.email||'').toLowerCase());
+       if(exists)continue;
+       const up=await supabaseClient.from('coach_athletes').upsert({
+        coach_id:state.cloudUser.id,email:p.email,display_name:p.display_name||'',
+        athlete_user_id:p.id,updated_at:new Date().toISOString()
+       },{onConflict:'coach_id,email'}).select('id,email,display_name,athlete_user_id,created_at').maybeSingle();
+       if(!up.error&&up.data)state.myAthletes.push(up.data);
+      }
+     }
+    }
+   }
+  }catch(e){console.warn('Не вдалося синхронізувати спортсменів із призначеннями:',e.message)}
+
+  // Re-read to reflect any successful linking/upserts and keep the table canonical.
+  const latest=await supabaseClient.from('coach_athletes')
+   .select('id,email,display_name,athlete_user_id,created_at')
+   .eq('coach_id',state.cloudUser.id).order('display_name',{ascending:true});
+  if(!latest.error)state.myAthletes=latest.data||state.myAthletes;
+  renderMyAthletes();
+  if(st){st.className='status';st.textContent=`Збережено спортсменів: ${state.myAthletes.length}.`;}
+ }catch(e){
+  if(st){st.className='status err';st.textContent='Не вдалося завантажити список: '+e.message;}
+ }
+}
 function renderMyAthletes(){const body=$('myAthletesRows');if(!body)return;body.innerHTML=state.myAthletes.length?state.myAthletes.map(a=>`<tr><td>${esc(a.display_name||'Без імені')}</td><td>${esc(a.email)}</td><td>${a.athlete_user_id?'<span class="badge ok">Зареєстрований</span>':'<span class="badge warn">Очікує реєстрації</span>'}</td><td>${esc(new Date(a.created_at).toLocaleDateString('uk-UA'))}</td><td><div class="row"><button class="primary" ${a.athlete_user_id?'':'disabled title="Статистика буде доступна після реєстрації акаунта"'} onclick="openSavedAthleteStats('${a.id}')">Статистика</button><button class="danger" onclick="removeMyAthlete('${a.id}')">Видалити</button></div></td></tr>`).join(''):'<tr><td colspan="5">У списку поки немає спортсменів. Додай email вище або признач перший бій.</td></tr>';}
 
 // Open the saved athlete's cloud analysis history without changing the current competition data.
@@ -239,14 +294,14 @@ async function openSavedAthleteStats(savedAthleteId){
  if(!athlete||!athlete.athlete_user_id){const st=$('myAthletesStatus');st.className='status warn';st.textContent='Цей спортсмен ще не має прив’язаного акаунта. Після реєстрації онови список.';return;}
  const st=$('myAthletesStatus');st.className='status';st.textContent=`Завантажую статистику ${athlete.display_name||athlete.email}…`;
  try{
-  const ar=await supabaseClient.from('bout_analyses').select('id,competition_id,bout_id,athlete_user_id,events,status,version,updated_at').eq('athlete_user_id',athlete.athlete_user_id).order('updated_at',{ascending:false});
+  const ar=await supabaseClient.from('bout_analyses').select('id,competition_id,bout_id,athlete_user_id,events,status,updated_at').eq('athlete_user_id',athlete.athlete_user_id).order('updated_at',{ascending:false});
   if(ar.error)throw ar.error;
   const analyses=ar.data||[];
   const meaningfulEvent=e=>!!(e&&typeof e==='object'&&String(e.athlete||'').trim()&&String(e.action||'').trim()&&String(e.zone||'').trim());
   const analyzedBoutIds=[...new Set(analyses.filter(a=>Array.isArray(a.events)&&a.events.some(meaningfulEvent)).map(a=>a.bout_id).filter(Boolean))];
   const events=analyses.flatMap(a=>(Array.isArray(a.events)?a.events:[]).filter(meaningfulEvent).map((e,i)=>({...e,_analysisId:a.id,_analysisVersion:a.version,_analysisStatus:a.status,_competitionId:a.competition_id,_boutId:a.bout_id,_eventIndex:i})));
   // Load all competitions owned by this coach and their normalized bout rows.
-  const cr=await supabaseClient.from('competitions').select('id,name,event_date').eq('coach_id',state.cloudUser.id).order('event_date',{ascending:false});
+  const cr=await supabaseClient.from('competitions').select('id,name').eq('coach_id',state.cloudUser.id).order('event_date',{ascending:false});
   if(cr.error)throw cr.error;
   const compIds=(cr.data||[]).map(c=>c.id);let allCompetitionBouts=[];
   if(compIds.length){
@@ -340,31 +395,70 @@ async function cloudSaveBoutAnalysis(status='draft'){if(!state.cloudUser)throw n
 function coachReviewStatus(msg,type=''){const el=$('coachReviewStatus');if(el){el.className='status '+type;el.textContent=msg}}
 // Fetch submitted analyses for the coach to review and show them in the review tab.
 async function refreshCoachInbox(){
- if(!$('coachReviewRows'))return;if(!state.cloudUser||state.cloudRole!=='coach'){coachReviewStatus('Увійди під тренерським акаунтом.','warn');return}
- coachReviewStatus('Завантажую аналізи, що очікують перевірки…');
+ if(!$('coachReviewRows'))return;
+ if(!state.cloudUser||state.cloudRole!=='coach'){coachReviewStatus('Увійди під тренерським акаунтом.','warn');return;}
+ coachReviewStatus('Завантажую призначені бої та аналізи…');
  try{
-  const {data:analyses,error}=await supabaseClient.from('bout_analyses').select('id,competition_id,bout_id,athlete_user_id,events,status,version,submitted_at,updated_at,review_comment').eq('status','submitted').order('submitted_at',{ascending:false});
-  if(error)throw error;
-  const rows=analyses||[];
-  if(!rows.length){$('coachReviewRows').innerHTML='<p class="muted">Наразі немає аналізів на перевірці.</p>';coachReviewStatus('Очікує перевірки: 0','ok');return}
-  const compIds=[...new Set(rows.map(a=>a.competition_id))],boutIds=[...new Set(rows.map(a=>a.bout_id))],userIds=[...new Set(rows.map(a=>a.athlete_user_id))];
+  const [analysisResult,assignmentResult]=await Promise.all([
+   supabaseClient.from('bout_analyses')
+    .select('id,competition_id,bout_id,athlete_user_id,events,status,version,submitted_at,updated_at,review_comment')
+    .in('status',['submitted','revision','approved','draft']).order('updated_at',{ascending:false}),
+   supabaseClient.from('bout_assignments')
+    .select('id,competition_id,bout_id,athlete_user_id,athlete_name,assigned_by,created_at,due_at,coach_note,video_url,team_video_url')
+    .eq('assigned_by',state.cloudUser.id).order('created_at',{ascending:false})
+  ]);
+  if(analysisResult.error)throw analysisResult.error;
+  if(assignmentResult.error)throw assignmentResult.error;
+  const analyses=analysisResult.data||[],assignments=assignmentResult.data||[];
+  const compIds=[...new Set([...analyses.map(a=>a.competition_id),...assignments.map(a=>a.competition_id)].filter(Boolean))];
+  const boutIds=[...new Set([...analyses.map(a=>a.bout_id),...assignments.map(a=>a.bout_id)].filter(Boolean))];
+  const userIds=[...new Set([...analyses.map(a=>a.athlete_user_id),...assignments.map(a=>a.athlete_user_id)].filter(Boolean))];
   const [cr,br,pr]=await Promise.all([
-   supabaseClient.from('competitions').select('id,name,event_date').in('id',compIds),
-   supabaseClient.from('competition_bouts').select('id,competition_id,bout_key,stage,pool_name,phase,fencer1_name,fencer2_name,fencer1_score,fencer2_score,bout_data').in('id',boutIds),
-   supabaseClient.from('profiles').select('id,email,display_name').in('id',userIds)
+   compIds.length?supabaseClient.from('competitions').select('id,name,event_date').in('id',compIds):Promise.resolve({data:[],error:null}),
+   boutIds.length?supabaseClient.from('competition_bouts').select('id,competition_id,bout_key,stage,pool_name,phase,fencer1_name,fencer2_name,fencer1_score,fencer2_score,bout_data').in('id',boutIds):Promise.resolve({data:[],error:null}),
+   userIds.length?supabaseClient.from('profiles').select('id,email,display_name').in('id',userIds):Promise.resolve({data:[],error:null})
   ]);
   if(cr.error)throw cr.error;if(br.error)throw br.error;if(pr.error)throw pr.error;
-  const cm=new Map((cr.data||[]).map(x=>[x.id,x])),bm=new Map((br.data||[]).map(x=>[x.id,x])),pm=new Map((pr.data||[]).map(x=>[x.id,x]));
-  const visible=rows.filter(a=>cm.has(a.competition_id)&&bm.has(a.bout_id));
-  $('coachReviewRows').innerHTML=visible.length?'<div class="scroll"><table><thead><tr><th>Змагання</th><th>Спортсмен / бій</th><th>Події</th><th>Надіслано</th><th>Дії</th></tr></thead><tbody>'+visible.map(a=>{
+  const cm=new Map((cr.data||[]).map(x=>[x.id,x]));
+  const bm=new Map((br.data||[]).map(x=>[x.id,x]));
+  const pm=new Map((pr.data||[]).map(x=>[x.id,x]));
+  const visible=analyses.filter(a=>cm.has(a.competition_id)&&bm.has(a.bout_id));
+  const submitted=visible.filter(a=>a.status==='submitted');
+  const revision=visible.filter(a=>a.status==='revision');
+  const approved=visible.filter(a=>a.status==='approved');
+
+  const renderAnalysisRows=rows=>rows.map(a=>{
    const c=cm.get(a.competition_id),b=bm.get(a.bout_id),p=pm.get(a.athlete_user_id)||{},bd=b.bout_data||{};
    const f1=b.fencer1_name||bd.fencer1?.name||'—',f2=b.fencer2_name||bd.fencer2?.name||'—';
    const ev=Array.isArray(a.events)?a.events:[];
    const eventList=ev.length?'<details><summary>'+ev.length+' подій</summary><ul>'+ev.map(e=>'<li>'+esc([e.time,e.athlete,e.action,e.zone,e.zoneDetail,e.note].filter(Boolean).join(' · '))+'</li>').join('')+'</ul></details>':'0';
-   return `<tr><td>${esc(c.name||'Змагання')}<br><span class="small">${esc(c.event_date||'')}</span></td><td><strong>${esc(p.display_name||p.email||a.athlete_user_id.slice(0,8))}</strong><br>${esc(f1)} — ${esc(f2)}<br><span class="small">${esc(b.stage||b.pool_name||b.phase||'')}</span></td><td>${eventList}</td><td>${esc(a.submitted_at?new Date(a.submitted_at).toLocaleString('uk-UA'):'—')}<br><span class="small">Версія ${esc(a.version)}</span></td><td><button class="primary" onclick="reviewCloudAnalysis('${a.id}','approved')">Затвердити</button> <button onclick="reviewCloudAnalysis('${a.id}','revision')">На доопрацювання</button><button onclick="openCoachReviewBout('${a.competition_id}','${b.bout_key}')">Відкрити бій</button></td></tr>`;
-  }).join('')+'</tbody></table></div>':'<p class="muted">Не знайдено доступних боїв для цих аналізів. Перевір зв’язок із змаганням.</p>';
-  coachReviewStatus(`Очікує перевірки: ${visible.length}`,'ok');
- }catch(e){coachReviewStatus('Не вдалося завантажити аналізи: '+e.message,'err');throw e}
+   const date=a.submitted_at||a.updated_at;
+   return `<tr><td>${esc(c.name||'Змагання')}<br><span class="small">${esc(c.event_date||'')}</span></td><td><strong>${esc(p.display_name||p.email||a.athlete_user_id.slice(0,8))}</strong><br>${esc(f1)} — ${esc(f2)}<br><span class="small">${esc(b.stage||b.pool_name||b.phase||'')}</span></td><td>${eventList}</td><td>${esc(date?new Date(date).toLocaleString('uk-UA'):'—')}<br><span class="small">Версія ${esc(a.version||1)}</span></td><td>${a.status==='submitted'?`<button class="primary" onclick="reviewCloudAnalysis('${a.id}','approved')">Затвердити</button> <button onclick="reviewCloudAnalysis('${a.id}','revision')">На доопрацювання</button>`:a.status==='revision'?'<span class="badge warn">На доопрацюванні</span>':a.status==='approved'?'<span class="badge ok">Затверджено</span>':'<span class="badge">Чернетка</span>'} <button onclick="openCoachReviewBout('${a.competition_id}','${b.bout_key}')">Відкрити бій</button></td></tr>`;
+  }).join('');
+
+  // An assignment remains in this list until the athlete submits an analysis.
+  const submittedKeys=new Set(submitted.map(a=>a.bout_id+'|'+a.athlete_user_id));
+  const assigned=assignments.filter(a=>{const key=a.bout_id+'|'+a.athlete_user_id;const related=visible.find(x=>x.bout_id===a.bout_id&&x.athlete_user_id===a.athlete_user_id);return !submittedKeys.has(key)&&related?.status!=='approved'&&cm.has(a.competition_id)&&bm.has(a.bout_id)});
+  const assignedRows=assigned.map(a=>{
+   const c=cm.get(a.competition_id),b=bm.get(a.bout_id),p=pm.get(a.athlete_user_id)||{},bd=b.bout_data||{};
+   const f1=b.fencer1_name||bd.fencer1?.name||'—',f2=b.fencer2_name||bd.fencer2?.name||'—';
+   const related=visible.find(x=>x.bout_id===a.bout_id&&x.athlete_user_id===a.athlete_user_id);
+   const stateLabel=related?.status==='revision'?'На доопрацюванні':related?.status==='approved'?'Затверджено':'Призначено';
+   const stateBadge=related?.status==='approved'?'ok':related?.status==='revision'?'warn':'';
+   const due=a.due_at?new Date(a.due_at).toLocaleString('uk-UA'):'не встановлено';
+   return `<tr><td>${esc(c.name||'Змагання')}<br><span class="small">${esc(c.event_date||'')}</span></td><td><strong>${esc(p.display_name||p.email||a.athlete_name||'Спортсмен')}</strong><br>${esc(f1)} — ${esc(f2)}<br><span class="small">${esc(b.stage||b.pool_name||b.phase||'')}</span></td><td><span class="badge ${stateBadge}">${stateLabel}</span></td><td>${esc(a.created_at?new Date(a.created_at).toLocaleString('uk-UA'):'—')}<br><span class="small">Дедлайн: ${esc(due)}</span></td><td><button onclick="openCoachReviewBout('${a.competition_id}','${b.bout_key}')">Відкрити бій</button></td></tr>`;
+  }).join('');
+
+  const section=(title,description,headers,body,empty)=>`<section class="card" style="margin-top:14px"><h3>${title}</h3><p class="hint">${description}</p>${body?`<div class="scroll"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`:`<p class="muted">${empty}</p>`}</section>`;
+  $('coachReviewRows').innerHTML=
+   section('Призначені бої','Бої, які ти відправив спортсменам. Вони залишаються тут, доки спортсмен не надішле аналіз.',['Змагання','Спортсмен / бій','Статус','Призначено / дедлайн','Дії'],assignedRows,'Наразі немає призначених боїв.')+
+   section('Очікують перевірки','Спортсмени надіслали ці аналізи тренеру.',['Змагання','Спортсмен / бій','Події','Надіслано','Дії'],renderAnalysisRows(submitted),'Наразі немає аналізів на перевірці.')+
+   section('Повернуті на доопрацювання','Аналізи, які ти повернув спортсменам.',['Змагання','Спортсмен / бій','Події','Оновлено','Статус'],renderAnalysisRows(revision),'Немає аналізів на доопрацюванні.')+
+   section('Затверджені аналізи','Історія затверджених робіт.',['Змагання','Спортсмен / бій','Події','Оновлено','Статус'],renderAnalysisRows(approved),'Поки немає затверджених аналізів.');
+  coachReviewStatus(`Призначено: ${assigned.length} · На перевірці: ${submitted.length} · На доопрацюванні: ${revision.length} · Затверджено: ${approved.length}`,'ok');
+ }catch(e){
+  coachReviewStatus('Не вдалося завантажити призначені бої та аналізи: '+e.message,'err');throw e;
+ }
 }
 async function openCoachReviewBout(competitionId,boutKeyValue){
  try{
@@ -649,76 +743,12 @@ async function deleteSavedAthleteEvent(analysisId,eventId,eventIndex){
  }catch(e){cloudStatus('Не вдалося видалити подію: '+e.message,'err');}
 }
 
-
-function renderGroupedSavedEvents(events){
- const host=$('statsEventsManager');
- if(!host)return;
- const payload=state.savedAthleteStats||{};
- const analyses=payload.analyses||[];
- const boutMap=new Map();
- for(const e of events){
-  const bid=e._boutId||'unknown';
-  if(!boutMap.has(bid)){
-   const bout=(payload.matches||[]).find(b=>b.id===bid)||(payload.analyzedMatches||[]).find(b=>b.id===bid);
-   const analysis=analyses.find(a=>a.id===e._analysisId)||null;
-   boutMap.set(bid,{bout,analysis,events:[],competitionId:e._competitionId||bout?._competitionId||'unknown'});
-  }
-  const group=boutMap.get(bid);
-  if(!group.analysis&&e._analysisId)group.analysis=analyses.find(a=>a.id===e._analysisId)||null;
-  group.events.push(e);
- }
- const competitions=new Map();
- for(const [boutId,g] of boutMap){
-  const compId=g.competitionId||'unknown';
-  if(!competitions.has(compId))competitions.set(compId,{bouts:[],name:g.bout?._competitionName||'Змагання',date:''});
-  const comp=competitions.get(compId);
-  const meta=(payload.competitions||[]).find(c=>c.id===compId);
-  if(meta){comp.name=meta.name||comp.name;comp.date=meta.event_date||'';}
-  comp.bouts.push({boutId,...g});
- }
- const sorted=[...competitions.entries()].sort((a,b)=>{
-  const da=a[1].date||'',db=b[1].date||'';
-  return db.localeCompare(da)||a[1].name.localeCompare(b[1].name,'uk');
- });
- const html=sorted.map(([compId,comp])=>{
-  const boutRows=comp.bouts.sort((a,b)=>{
-   const an=(a.bout?.fencer1?.name||'')+' '+(a.bout?.fencer2?.name||'');
-   const bn=(b.bout?.fencer1?.name||'')+' '+(b.bout?.fencer2?.name||'');
-   return an.localeCompare(bn,'uk');
-  }).map(g=>{
-   const b=g.bout||{};
-   const f1=b.fencer1?.name||'—',f2=b.fencer2?.name||'—';
-   const stage=b.stage||b.pool||b.phase||'';
-   const status=g.analysis?.status||g.events[0]?._analysisStatus||'draft';
-   const statusText=({draft:'Чернетка',submitted:'На перевірці',approved:'Затверджено',revision:'На доопрацюванні'})[status]||status;
-   const chatButton=g.analysis?.id?`<button type="button" onclick="openStatsBoutChat('${esc(g.analysis.id)}','${esc(status)}','${esc(f1+' — '+f2)}')">Обговорення</button>`:'<span class="muted small">Чат недоступний</span>';
-   const eventRows=g.events.map(e=>`<tr><td>${esc(e.time||'—')}</td><td>${esc(e.action||'')}</td><td>${esc(e.zone||'')}${e.zoneDetail?' · '+esc(e.zoneDetail):''}</td><td>${esc(e.note||'')}</td><td><button class="danger" type="button" onclick="deleteSavedAthleteEvent('${esc(e._analysisId)}','${esc(e.id||'')}',${Number(e._eventIndex||0)})">Видалити</button></td></tr>`).join('');
-   return `<details class="stats-bout-group"><summary><span><strong>${esc(f1)} — ${esc(f2)}</strong><span class="muted small"> · ${g.events.length} подій · ${esc(stage)}</span></span><span class="badge ${status==='approved'?'ok':status==='submitted'?'warn':''}">${esc(statusText)}</span></summary><div class="stats-bout-actions">${chatButton}</div><div class="scroll"><table><thead><tr><th>Час</th><th>Дія</th><th>Ситуація</th><th>Примітка</th><th></th></tr></thead><tbody>${eventRows}</tbody></table></div></details>`;
-  }).join('');
-  return `<details class="stats-competition-group" open><summary><strong>${esc(comp.name)}</strong><span class="muted small">${esc(comp.date)} · ${comp.bouts.length} боїв</span></summary>${boutRows}</details>`;
- }).join('');
- host.innerHTML=events.length?'<h3>Розмічені бої — за змаганнями</h3><p class="hint">Загальна статистика вище враховує всі події з усіх змагань. Розгорни змагання та окремий бій, щоб переглянути події або відкрити обговорення.</p>'+html:'<h3>Розмічені бої</h3><p class="muted">У цього спортсмена ще немає розмічених подій.</p>';
-}
-async function openStatsBoutChat(analysisId,status,boutTitle){
- const manager=$('statsEventsManager');
- if(!manager)return;
- let panel=$('statsBoutChatPanel');
- if(!panel){
-  panel=document.createElement('div');
-  panel.id='statsBoutChatPanel';
-  panel.className='card bout-chat-card';
-  manager.appendChild(panel);
- }
- panel.innerHTML='<div class="bout-chat-head"><div><h3>Обговорення: '+esc(boutTitle||'Бій')+'</h3><p class="muted">Історія повідомлень цього бою</p></div></div><div id="boutChat"><p class="muted">Завантажую повідомлення…</p></div>';
- await loadBoutChat(analysisId,status);
- panel.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
 function updateStats(){
  const selected=$('statsAthlete')?.value||'';const cloudMode=!!state.savedAthleteStats;
  const sourceEvents=cloudMode?state.savedAthleteStats.events:state.events;const events=sourceEvents.filter(e=>!selected||keyName(e.athlete)===keyName(selected));
  $('eventCount').textContent=events.length;const scored=events.filter(e=>e.action==='Завдав'),received=events.filter(e=>e.action==='Отримав');$('scoredCount').textContent=scored.length;$('receivedCount').textContent=received.length;
- const manager=$('statsEventsManager');if(manager){if(cloudMode&&state.cloudRole==='coach')renderGroupedSavedEvents(events);else manager.innerHTML='<p class="hint">Керування подіями доступне тренеру в статистиці збереженого спортсмена.</p>';}
-  const zones=[['Атака','Attack'],['Середина доріжки','Middle'],['Захист','Defense']];for(const [action,list,prefix] of [['Завдав',scored,'scored'],['Отримав',received,'received']]){const n=list.length;for(const [zone,suffix] of zones){const el=$(prefix+suffix+'Pct');if(el)el.textContent=(n?Math.round(list.filter(e=>e.zone===zone).length/n*100):0)+'%';}}
+ const manager=$('statsEventsManager');if(manager){manager.innerHTML=cloudMode&&state.cloudRole==='coach'?(events.length?'<h3>Розмічені події — керування</h3><p class="hint">Можна видалити окрему подію. Зміна збережеться в хмарному аналізі та одразу перерахуються відсотки.</p><div class="scroll"><table><thead><tr><th>Бій</th><th>Час</th><th>Дія</th><th>Ситуація</th><th>Примітка</th><th></th></tr></thead><tbody>'+events.map(e=>{const bout=state.savedAthleteStats.matches.find(b=>b.id===e._boutId)||state.savedAthleteStats.analyzedMatches.find(b=>b.id===e._boutId);return '<tr><td>'+esc(bout?((bout.fencer1?.name||'—')+' — '+(bout.fencer2?.name||'—')):'Бій')+'</td><td>'+esc(e.time||'—')+'</td><td>'+esc(e.action||'')+'</td><td>'+esc(e.zone||'')+(e.zoneDetail?' · '+esc(e.zoneDetail):'')+'</td><td>'+esc(e.note||'')+'</td><td><button class="danger" type="button" onclick="deleteSavedAthleteEvent(\''+esc(e._analysisId)+'\',\''+esc(e.id||'')+'\', '+Number(e._eventIndex||0)+')">Видалити</button></td></tr>'}).join('')+'</tbody></table></div>':'<h3>Розмічені події</h3><p class="muted">У цього спортсмена ще немає розмічених подій.</p>'):'<p class="hint">Керування подіями доступне тренеру в статистиці спортсмена зі списку «Мої спортсмени».</p>'; }
+ const zones=[['Атака','Attack'],['Середина доріжки','Middle'],['Захист','Defense']];for(const [action,list,prefix] of [['Завдав',scored,'scored'],['Отримав',received,'received']]){const n=list.length;for(const [zone,suffix] of zones){const el=$(prefix+suffix+'Pct');if(el)el.textContent=(n?Math.round(list.filter(e=>e.zone===zone).length/n*100):0)+'%';}}
  const all=cloudMode?state.savedAthleteStats.matches:(state.data?.matches||[]);const analyzed=cloudMode?state.savedAthleteStats.analyzedMatches:all.filter(b=>{const key=boutKey(b);return state.events.some(e=>e.boutKey===key&&keyName(e.athlete)===keyName(selected)&&e&&String(e.action||'').trim()&&String(e.zone||'').trim());});
  const classify=(source)=>{const won=[],lost=[],other=[];source.forEach((b,index)=>{const n1=b.fencer1?.name||'',n2=b.fencer2?.name||'';const isF1=keyName(n1)===keyName(selected),isF2=keyName(n2)===keyName(selected);if(!isF1&&!isF2)return;const winner=b.winner?.name||'';const item={b,index,opponent:isF1?(n2||'—'):(n1||'—')};if(!winner){other.push(item);return;}if(keyName(winner)===keyName(selected))won.push(item);else if(keyName(winner)===keyName(n1)||keyName(winner)===keyName(n2))lost.push(item);else other.push(item);});return {won,lost,other};};
  const full=selected?classify(all):{won:[],lost:[],other:[]};const done=selected?classify(analyzed):{won:[],lost:[],other:[]};
@@ -754,7 +784,7 @@ $('exportMigrationBtn').addEventListener('click',()=>{
 
 <script id="fa-i18n">
 (()=>{
- const dict={"Панель тренера · аналітика фехтування": "Coaching dashboard · fencing analytics", "Огляд": "Overview", "Змагання / імпорт": "Competitions / Import", "Мій кабінет": "My Dashboard", "На перевірці": "Pending Review", "Спортсмени": "Athletes", "Бої": "Bouts", "Аналіз бою": "Bout Analysis", "Статистика": "Statistics", "КОНТРОЛЬ": "MANAGEMENT", "Огляд роботи": "Workspace Overview", "Усі ключові інструменти тренера — в одному місці.": "All the key coaching tools in one place.", "Система готова до роботи": "System ready", "Профілі, контакти та доступ до аналізів": "Profiles, contacts and access to analyses", "Відкрити розділ →": "Open section →", "Аналітичні дані": "Analytics", "Нанесені та пропущені удари, відсотки, ситуації": "Hits landed and received, percentages and situations", "Переглянути статистику →": "View statistics →", "Бої та завдання": "Bouts and Assignments", "Бої змагань, призначення та матеріали": "Competition bouts, assignments and materials", "Перейти до боїв →": "Go to bouts →", "Роботи на перевірці": "Items pending review", "Результати спортсменів та коментарі": "Athlete results and comments", "Перевірити аналізи →": "Review analyses →", "Швидкий доступ": "Quick Access", "＋ Імпортувати змагання": "＋ Import competition", "◉ Відкрити аналіз бою": "◉ Open bout analysis", "▥ Переглянути статистику": "▥ View statistics", "Від даних до рішень": "From data to decisions", "Аналізуй кожен бій, відстежуй динаміку спортсменів і контролюй виконання завдань.": "Analyze every bout, track athlete progress and monitor task completion.", "Хмарний акаунт Supabase": "Supabase Cloud Account", "Увійди або створи акаунт. Публічний ключ використовується лише в браузері; секретні ключі сюди не вставляються.": "Sign in or create an account. The public key is used only in the browser; never enter secret keys here.", "Пароль": "Password", "Ім’я (для реєстрації)": "Name (for registration)", "Увійти": "Sign in", "Створити акаунт": "Create account", "Вийти": "Sign out", "Зберегти змагання в хмару": "Save competition to cloud", "Завантажити мої змагання": "Load my competitions", "Оберіть збережене змагання": "Select a saved competition", "Видалити вибране змагання": "Delete selected competition", "Supabase ще не підключено.": "Supabase is not connected yet.", "Імпорт змагання": "Import Competition", "Можна завантажити готовий": "You can upload a ready-made", "або JSON-експорти Fencing Time Live. Обробка відбувається локально у браузері.": "or Fencing Time Live JSON exports. Processing takes place locally in your browser.", "JSON-файли Fencing Time Live": "Fencing Time Live JSON files", "Імпортувати JSON": "Import JSON", "Завантажити нормалізований JSON": "Download normalized JSON", "Експорт змагання + удари для V5": "Export competition + hits for V5", "Очистити поточне змагання": "Clear current competition", "Очікую на файл змагання.": "Waiting for a competition file.", "Імпорт з FIE — PDF": "Import from FIE — PDF", "Завантаж три PDF з FIE: Pools, Tableau та Results. Pool Results не потрібен — статистика груп розраховується з протоколів боїв. Файли обробляються локально у браузері.": "Upload three FIE PDFs: Pools, Tableau and Results. Pool Results is not required — pool statistics are calculated from bout protocols. Files are processed locally in your browser.", "PDF-файли FIE (3 обов’язкові)": "FIE PDF files (3 required)", "Перевірити та імпортувати FIE PDF": "Validate and import FIE PDFs", "Очікую на 3 PDF: Pools, Tableau, Results.": "Waiting for 3 PDFs: Pools, Tableau, Results.", "Обери три PDF-файли з одного змагання FIE.": "Select three PDFs from the same FIE competition.", "Змагання": "Competitions", "Звіт імпорту та перевірки": "Import and Validation Report", "Рахунок фіналу може бути відсутнім у вихідному Tableau. У такому разі переможець визначається за місцями 1–2, але рахунок лишається порожнім.": "The final score may be missing from the source Tableau. In that case, the winner is determined from places 1–2, while the score remains blank.", "Як експортувати з Fencing Time Live": "How to export from Fencing Time Live", "Увійди у свій акаунт Fencing Time Live у Chrome.": "Sign in to your Fencing Time Live account in Chrome.", "На сторінках Pools, Tableau та Results запусти розширення Fencing Analytics V6 і збережи JSON.": "On the Pools, Tableau and Results pages, run the Fencing Analytics V6 extension and save the JSON files.", "Вибери всі три JSON-файли вище та натисни «Імпортувати».": "Select all three JSON files above and click “Import”.", "Мої спортсмени": "My Athletes", "Ім’я спортсмена": "Athlete name", "Електронна адреса": "Email address", "Додати до моїх спортсменів": "Add to my athletes", "Оновити список": "Refresh list", "Увійди як тренер, щоб керувати списком.": "Sign in as a coach to manage this list.", "Спортсмен": "Athlete", "Країна": "Country", "Група": "Pool", "Місце": "Place", "Пошук спортсмена": "Search athlete", "Етап": "Stage", "Усі етапи": "All stages", "Групи": "Pools", "DE / Tableau": "DE / Tableau", "Спортсмен 1": "Athlete 1", "Рахунок": "Score", "Спортсмен 2": "Athlete 2", "Переможець / статус": "Winner / Status", "🎥 Аналіз бою": "🎥 Bout Analysis", "Вибери бій у вкладці «Бої».": "Select a bout in the “Bouts” tab.", "Статистика ударів": "Hit Statistics", "Обери спортсмена": "Select an athlete", "Удари завдано": "Hits landed", "Удари отримано": "Hits received", "Розмічено подій": "Tagged events", "Розподіл за ситуацією": "Breakdown by situation", "Нанесені удари": "Hits landed", "Пропущені удари": "Hits received", "Атака": "Attack", "Середина доріжки": "Middle of the piste", "Захист": "Defense", "Результати проаналізованих боїв спортсмена": "Athlete’s analyzed bout results", "Тут відображаються лише бої, для яких у системі є збережений аналіз.": "Only bouts with a saved analysis are shown here.", "Виграні проаналізовані бої": "Analyzed bouts won", "Програні проаналізовані бої": "Analyzed bouts lost", "Виграні бої": "Bouts won", "Програні бої": "Bouts lost", "Усього боїв": "Total bouts", "Аналізи спортсменів на перевірці": "Athlete analyses pending review", "Надіслані спортсменами аналізи, які очікують на перевірку тренера.": "Analyses submitted by athletes and waiting for coach review.", "Мій кабінет спортсмена": "Athlete Dashboard", "Твої призначені бої, історія аналізів і особиста статистика.": "Your assigned bouts, analysis history and personal statistics.", "Оновити кабінет": "Refresh dashboard", "Завантаження кабінету…": "Loading dashboard…", "Моя статистика": "My Statistics", "Твій прогрес за збереженими боями та розміченими подіями.": "Your progress based on saved bouts and tagged events.", "Проаналізовані бої": "Analyzed bouts", "Усі бої": "All bouts", "Статистика проаналізованих боїв": "Analyzed bout statistics", "Перемоги": "Wins", "Різниця ударів": "Hit difference", "Ефективність за ситуаціями": "Effectiveness by situation", "Динаміка прогресу": "Progress over time", "Для порівняння потрібні дані щонайменше двох змагань.": "At least two competitions are required for comparison.", "Мої бої та аналізи": "My Bouts and Analyses", "Матеріали та дедлайн": "Materials and deadline", "Статус аналізу": "Analysis status", "Завантаження…": "Loading…", "Вітаємо!": "Welcome!", "Тип отриманого удару в атаці": "Type of hit received in attack", "Контр-атака": "Counter-attack", "Перехват-удар": "Intercepting hit", "Обговорення бою": "Bout discussion", "Спільний щоденник спортсмена й тренера": "Shared athlete and coach journal", "Закрито після затвердження": "Closed after approval", "Відкрито": "Open", "Оновити": "Refresh", "Поки немає повідомлень. Можна почати з короткого висновку після бою.": "No messages yet. Start with a short post-bout reflection.", "Напиши думки, висновки або запитання щодо бою…": "Write your thoughts, takeaways or questions about the bout…", "Надіслати": "Send", "Історія повідомлень доступна лише для читання.": "Message history is read-only.", "Обери «Обговорення» біля потрібного аналізу нижче.": "Choose “Discussion” next to the relevant analysis below.", "Збережи чернетку аналізу в хмарі, щоб розпочати обговорення.": "Save an analysis draft to the cloud to start the discussion.", "Обговорення": "Discussion", "Тренер": "Coach"};
+ const dict={"Панель тренера · аналітика фехтування": "Coaching dashboard · fencing analytics", "Огляд": "Overview", "Змагання / імпорт": "Competitions / Import", "Мій кабінет": "My Dashboard", "На перевірці": "Pending Review", "Спортсмени": "Athletes", "Бої": "Bouts", "Аналіз бою": "Bout Analysis", "Статистика": "Statistics", "КОНТРОЛЬ": "MANAGEMENT", "Огляд роботи": "Workspace Overview", "Усі ключові інструменти тренера — в одному місці.": "All the key coaching tools in one place.", "Система готова до роботи": "System ready", "Профілі, контакти та доступ до аналізів": "Profiles, contacts and access to analyses", "Відкрити розділ →": "Open section →", "Аналітичні дані": "Analytics", "Нанесені та пропущені удари, відсотки, ситуації": "Hits landed and received, percentages and situations", "Переглянути статистику →": "View statistics →", "Бої та завдання": "Bouts and Assignments", "Бої змагань, призначення та матеріали": "Competition bouts, assignments and materials", "Перейти до боїв →": "Go to bouts →", "Роботи на перевірці": "Items pending review", "Результати спортсменів та коментарі": "Athlete results and comments", "Перевірити аналізи →": "Review analyses →", "Швидкий доступ": "Quick Access", "＋ Імпортувати змагання": "＋ Import competition", "◉ Відкрити аналіз бою": "◉ Open bout analysis", "▥ Переглянути статистику": "▥ View statistics", "Від даних до рішень": "From data to decisions", "Аналізуй кожен бій, відстежуй динаміку спортсменів і контролюй виконання завдань.": "Analyze every bout, track athlete progress and monitor task completion.", "Хмарний акаунт Supabase": "Supabase Cloud Account", "Увійди або створи акаунт. Публічний ключ використовується лише в браузері; секретні ключі сюди не вставляються.": "Sign in or create an account. The public key is used only in the browser; never enter secret keys here.", "Пароль": "Password", "Ім’я (для реєстрації)": "Name (for registration)", "Увійти": "Sign in", "Створити акаунт": "Create account", "Вийти": "Sign out", "Зберегти змагання в хмару": "Save competition to cloud", "Завантажити мої змагання": "Load my competitions", "Оберіть збережене змагання": "Select a saved competition", "Видалити вибране змагання": "Delete selected competition", "Supabase ще не підключено.": "Supabase is not connected yet.", "Імпорт змагання": "Import Competition", "Можна завантажити готовий": "You can upload a ready-made", "або JSON-експорти Fencing Time Live. Обробка відбувається локально у браузері.": "or Fencing Time Live JSON exports. Processing takes place locally in your browser.", "JSON-файли Fencing Time Live": "Fencing Time Live JSON files", "Імпортувати JSON": "Import JSON", "Завантажити нормалізований JSON": "Download normalized JSON", "Експорт змагання + удари для V5": "Export competition + hits for V5", "Очистити поточне змагання": "Clear current competition", "Очікую на файл змагання.": "Waiting for a competition file.", "Імпорт з FIE — PDF": "Import from FIE — PDF", "Завантаж три PDF з FIE: Pools, Tableau та Results. Pool Results не потрібен — статистика груп розраховується з протоколів боїв. Файли обробляються локально у браузері.": "Upload three FIE PDFs: Pools, Tableau and Results. Pool Results is not required — pool statistics are calculated from bout protocols. Files are processed locally in your browser.", "PDF-файли FIE (3 обов’язкові)": "FIE PDF files (3 required)", "Перевірити та імпортувати FIE PDF": "Validate and import FIE PDFs", "Очікую на 3 PDF: Pools, Tableau, Results.": "Waiting for 3 PDFs: Pools, Tableau, Results.", "Обери три PDF-файли з одного змагання FIE.": "Select three PDFs from the same FIE competition.", "Змагання": "Competitions", "Звіт імпорту та перевірки": "Import and Validation Report", "Рахунок фіналу може бути відсутнім у вихідному Tableau. У такому разі переможець визначається за місцями 1–2, але рахунок лишається порожнім.": "The final score may be missing from the source Tableau. In that case, the winner is determined from places 1–2, while the score remains blank.", "Як експортувати з Fencing Time Live": "How to export from Fencing Time Live", "Увійди у свій акаунт Fencing Time Live у Chrome.": "Sign in to your Fencing Time Live account in Chrome.", "На сторінках Pools, Tableau та Results запусти розширення Fencing Analytics V6 і збережи JSON.": "On the Pools, Tableau and Results pages, run the Fencing Analytics V6 extension and save the JSON files.", "Вибери всі три JSON-файли вище та натисни «Імпортувати».": "Select all three JSON files above and click “Import”.", "Мої спортсмени": "My Athletes", "Ім’я спортсмена": "Athlete name", "Електронна адреса": "Email address", "Додати до моїх спортсменів": "Add to my athletes", "Оновити список": "Refresh list", "Увійди як тренер, щоб керувати списком.": "Sign in as a coach to manage this list.", "Спортсмен": "Athlete", "Країна": "Country", "Група": "Pool", "Місце": "Place", "Пошук спортсмена": "Search athlete", "Етап": "Stage", "Усі етапи": "All stages", "Групи": "Pools", "DE / Tableau": "DE / Tableau", "Спортсмен 1": "Athlete 1", "Рахунок": "Score", "Спортсмен 2": "Athlete 2", "Переможець / статус": "Winner / Status", "🎥 Аналіз бою": "🎥 Bout Analysis", "Вибери бій у вкладці «Бої».": "Select a bout in the “Bouts” tab.", "Статистика ударів": "Hit Statistics", "Обери спортсмена": "Select an athlete", "Удари завдано": "Hits landed", "Удари отримано": "Hits received", "Розмічено подій": "Tagged events", "Розподіл за ситуацією": "Breakdown by situation", "Нанесені удари": "Hits landed", "Пропущені удари": "Hits received", "Атака": "Attack", "Середина доріжки": "Middle of the piste", "Захист": "Defense", "Результати проаналізованих боїв спортсмена": "Athlete’s analyzed bout results", "Тут відображаються лише бої, для яких у системі є збережений аналіз.": "Only bouts with a saved analysis are shown here.", "Виграні проаналізовані бої": "Analyzed bouts won", "Програні проаналізовані бої": "Analyzed bouts lost", "Виграні бої": "Bouts won", "Програні бої": "Bouts lost", "Усього боїв": "Total bouts", "Аналізи спортсменів на перевірці": "Athlete analyses pending review", "Тут окремо показані призначені бої, аналізи на перевірці, повернуті на доопрацювання та затверджені роботи.": "Analyses submitted by athletes and waiting for coach review.", "Мій кабінет спортсмена": "Athlete Dashboard", "Твої призначені бої, історія аналізів і особиста статистика.": "Your assigned bouts, analysis history and personal statistics.", "Оновити кабінет": "Refresh dashboard", "Завантаження кабінету…": "Loading dashboard…", "Моя статистика": "My Statistics", "Твій прогрес за збереженими боями та розміченими подіями.": "Your progress based on saved bouts and tagged events.", "Проаналізовані бої": "Analyzed bouts", "Усі бої": "All bouts", "Статистика проаналізованих боїв": "Analyzed bout statistics", "Перемоги": "Wins", "Різниця ударів": "Hit difference", "Ефективність за ситуаціями": "Effectiveness by situation", "Динаміка прогресу": "Progress over time", "Для порівняння потрібні дані щонайменше двох змагань.": "At least two competitions are required for comparison.", "Мої бої та аналізи": "My Bouts and Analyses", "Матеріали та дедлайн": "Materials and deadline", "Статус аналізу": "Analysis status", "Завантаження…": "Loading…", "Вітаємо!": "Welcome!", "Тип отриманого удару в атаці": "Type of hit received in attack", "Контр-атака": "Counter-attack", "Перехват-удар": "Intercepting hit", "Обговорення бою": "Bout discussion", "Спільний щоденник спортсмена й тренера": "Shared athlete and coach journal", "Закрито після затвердження": "Closed after approval", "Відкрито": "Open", "Оновити": "Refresh", "Поки немає повідомлень. Можна почати з короткого висновку після бою.": "No messages yet. Start with a short post-bout reflection.", "Напиши думки, висновки або запитання щодо бою…": "Write your thoughts, takeaways or questions about the bout…", "Надіслати": "Send", "Історія повідомлень доступна лише для читання.": "Message history is read-only.", "Обери «Обговорення» біля потрібного аналізу нижче.": "Choose “Discussion” next to the relevant analysis below.", "Збережи чернетку аналізу в хмарі, щоб розпочати обговорення.": "Save an analysis draft to the cloud to start the discussion.", "Обговорення": "Discussion", "Тренер": "Coach"};
  const reverse=Object.fromEntries(Object.entries(dict).map(([uk,en])=>[en,uk]));
  let lang=localStorage.getItem('fa-language')||'uk';
  const mapText=(value,target)=>{
