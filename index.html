@@ -477,7 +477,7 @@ async function refreshCoachInbox(){
    const stateLabel=related?.status==='revision'?'На доопрацюванні':related?.status==='approved'?'Затверджено':'Призначено';
    const stateBadge=related?.status==='approved'?'ok':related?.status==='revision'?'warn':'';
    const due=a.due_at?new Date(a.due_at).toLocaleString('uk-UA'):'не встановлено';
-   return `<tr><td>${esc(c.name||'Змагання')}<br><span class="small">${esc(c.event_date||'')}</span></td><td><strong>${esc(p.display_name||p.email||a.athlete_name||'Спортсмен')}</strong><br>${esc(f1)} — ${esc(f2)}<br><span class="small">${esc(b.stage||b.pool_name||b.phase||'')}</span></td><td><span class="badge ${stateBadge}">${stateLabel}</span></td><td>${esc(a.created_at?new Date(a.created_at).toLocaleString('uk-UA'):'—')}<br><span class="small">Дедлайн: ${esc(due)}</span></td><td><button onclick="openCoachReviewBout('${a.competition_id}','${b.bout_key}')">Відкрити бій</button></td></tr>`;
+   return `<tr><td>${esc(c.name||'Змагання')}<br><span class="small">${esc(c.event_date||'')}</span></td><td><strong>${esc(p.display_name||p.email||a.athlete_name||'Спортсмен')}</strong><br>${esc(f1)} — ${esc(f2)}<br><span class="small">${esc(b.stage||b.pool_name||b.phase||'')}</span></td><td><span class="badge ${stateBadge}">${stateLabel}</span></td><td>${esc(a.created_at?new Date(a.created_at).toLocaleString('uk-UA'):'—')}<br><span class="small">Дедлайн: ${esc(due)}</span></td><td><button onclick="openCoachReviewBout('${a.competition_id}','${b.bout_key}')">Відкрити бій</button> <button type="button" onclick="editBoutAssignment('${a.id}')">Редагувати</button> <button type="button" class="danger" onclick="deleteBoutAssignment('${a.id}')">Видалити</button></td></tr>`;
   }).join('');
 
   const section=(title,description,headers,body,empty)=>`<section class="card" style="margin-top:14px"><h3>${title}</h3><p class="hint">${description}</p>${body?`<div class="scroll"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`:`<p class="muted">${empty}</p>`}</section>`;
@@ -491,6 +491,92 @@ async function refreshCoachInbox(){
   coachReviewStatus('Не вдалося завантажити призначені бої та аналізи: '+e.message,'err');throw e;
  }
 }
+
+// Coach-only assignment management. Editing an assignment never changes the official competition bout.
+async function editBoutAssignment(assignmentId){
+ if(!state.cloudUser||state.cloudRole!=='coach')return cloudStatus('Редагувати призначення може лише тренер.','err');
+ try{
+  const ar=await supabaseClient.from('bout_assignments')
+   .select('id,competition_id,bout_id,athlete_user_id,athlete_name,assigned_by,video_url,team_video_url,video_start_seconds,coach_note,due_at')
+   .eq('id',assignmentId).eq('assigned_by',state.cloudUser.id).maybeSingle();
+  if(ar.error)throw ar.error;if(!ar.data)throw new Error('Призначення не знайдено або воно належить іншому тренеру.');
+  const a=ar.data;
+  const [profileResult,analysisResult]=await Promise.all([
+   supabaseClient.from('profiles').select('id,email,display_name,role').eq('id',a.athlete_user_id).maybeSingle(),
+   supabaseClient.from('bout_analyses').select('id,status').eq('competition_id',a.competition_id).eq('bout_id',a.bout_id).eq('athlete_user_id',a.athlete_user_id)
+  ]);
+  if(profileResult.error)throw profileResult.error;if(analysisResult.error)throw analysisResult.error;
+  const hasAnalysis=(analysisResult.data||[]).length>0;
+  const currentEmail=profileResult.data?.email||'';
+  let athleteId=a.athlete_user_id, athleteName=a.athlete_name, athleteEmail=currentEmail;
+  if(!hasAnalysis){
+   const nextEmail=prompt('Email спортсмена для призначення:',currentEmail);
+   if(nextEmail===null)return;
+   const normalizedEmail=nextEmail.trim().toLowerCase();
+   if(!normalizedEmail)throw new Error('Email спортсмена не може бути порожнім.');
+   const pr=await supabaseClient.from('profiles').select('id,email,display_name,role').ilike('email',normalizedEmail).maybeSingle();
+   if(pr.error)throw pr.error;
+   if(!pr.data||pr.data.role!=='athlete')throw new Error('Не знайдено зареєстрованого спортсмена з таким email.');
+   athleteId=pr.data.id;athleteName=pr.data.display_name||a.athlete_name;athleteEmail=pr.data.email;
+   if(athleteId!==a.athlete_user_id&&!confirm(`Перепризначити цей бій спортсмену ${athleteName} (${normalizedEmail})?`))return;
+  }
+  const videoUrlRaw=prompt('Посилання на відео бою:',a.video_url||'');
+  if(videoUrlRaw===null)return;
+  const teamUrlRaw=prompt('Посилання на командну зустріч:',a.team_video_url||'');
+  if(teamUrlRaw===null)return;
+  const startRaw=prompt('Таймкод початку (наприклад 1:25), залиш порожнім якщо не потрібен:',a.video_start_seconds==null?'':String(a.video_start_seconds));
+  if(startRaw===null)return;
+  const dueRaw=prompt('Дедлайн (дата й час у форматі YYYY-MM-DDTHH:mm), залиш порожнім щоб прибрати:',a.due_at?new Date(a.due_at).toISOString().slice(0,16):'');
+  if(dueRaw===null)return;
+  const note=prompt('Коментар / завдання тренера:',a.coach_note||'');
+  if(note===null)return;
+  const videoUrl=videoUrlRaw.trim()?safeHttpUrl(videoUrlRaw.trim()):'';
+  const teamVideoUrl=teamUrlRaw.trim()?safeHttpUrl(teamUrlRaw.trim()):'';
+  if(videoUrlRaw.trim()&&!videoUrl)throw new Error('Посилання на відео бою має починатися з https:// або http://.');
+  if(teamUrlRaw.trim()&&!teamVideoUrl)throw new Error('Посилання на командну зустріч має починатися з https:// або http://.');
+  const startSeconds=startRaw.trim()?parseTimecode(startRaw.trim()):null;
+  if(startRaw.trim()&&startSeconds===null)throw new Error('Не вдалося розпізнати таймкод. Використай формат 1:25 або кількість секунд.');
+  if(startSeconds!==null&&!teamVideoUrl)throw new Error('Для таймкоду потрібно вказати посилання на командну зустріч.');
+  if(dueRaw.trim()&&!Number.isFinite(new Date(dueRaw).getTime()))throw new Error('Неправильний формат дедлайну.');
+  const dueAt=dueRaw.trim()?new Date(dueRaw).toISOString():null;
+  const payload={athlete_user_id:athleteId,athlete_name:athleteName,video_url:videoUrl||null,team_video_url:teamVideoUrl||null,video_start_seconds:startSeconds,coach_note:note.trim()||null,due_at:dueAt};
+  const upd=await supabaseClient.from('bout_assignments').update(payload).eq('id',assignmentId).eq('assigned_by',state.cloudUser.id).select('id').maybeSingle();
+  if(upd.error)throw upd.error;if(!upd.data)throw new Error('Не вдалося оновити призначення. Перевір права доступу тренера.');
+  if(athleteId!==a.athlete_user_id&&athleteEmail)await saveAthleteContact(athleteName,athleteEmail,true);
+  cloudStatus(hasAnalysis?'Призначення оновлено. Спортсмен не змінювався, щоб зберегти його аналіз.':'Призначення оновлено.','ok');
+  await refreshCoachInbox();await refreshMyAthletes();
+ }catch(e){cloudStatus('Не вдалося редагувати призначення: '+e.message,'err');}
+}
+
+async function deleteBoutAssignment(assignmentId){
+ if(!state.cloudUser||state.cloudRole!=='coach')return cloudStatus('Видаляти призначення може лише тренер.','err');
+ try{
+  const ar=await supabaseClient.from('bout_assignments')
+   .select('id,competition_id,bout_id,athlete_user_id,athlete_name,assigned_by')
+   .eq('id',assignmentId).eq('assigned_by',state.cloudUser.id).maybeSingle();
+  if(ar.error)throw ar.error;if(!ar.data)throw new Error('Призначення не знайдено або воно належить іншому тренеру.');
+  const a=ar.data;
+  const [cr,br,analysisResult]=await Promise.all([
+   supabaseClient.from('competitions').select('name').eq('id',a.competition_id).maybeSingle(),
+   supabaseClient.from('competition_bouts').select('fencer1_name,fencer2_name,stage,pool_name,phase').eq('id',a.bout_id).maybeSingle(),
+   supabaseClient.from('bout_analyses').select('id,status').eq('competition_id',a.competition_id).eq('bout_id',a.bout_id).eq('athlete_user_id',a.athlete_user_id)
+  ]);
+  if(cr.error)throw cr.error;if(br.error)throw br.error;if(analysisResult.error)throw analysisResult.error;
+  if((analysisResult.data||[]).length){
+   const statuses=[...new Set(analysisResult.data.map(x=>x.status))].join(', ');
+   throw new Error(`Для цього призначення вже є аналіз (${statuses}). Щоб не втратити роботу спортсмена, видалення заблоковано. Можна відредагувати матеріали та дедлайн.`);
+  }
+  const bout=br.data||{};
+  const boutLabel=[bout.fencer1_name,bout.fencer2_name].filter(Boolean).join(' — ')||'цей бій';
+  const competitionName=cr.data?.name||'змагання';
+  if(!confirm(`Видалити призначення?\n\n${competitionName}\n${a.athlete_name}\n${boutLabel}\n\nБуде видалено лише призначення. Бій в офіційному протоколі змагання залишиться.`))return;
+  const del=await supabaseClient.from('bout_assignments').delete().eq('id',assignmentId).eq('assigned_by',state.cloudUser.id).select('id').maybeSingle();
+  if(del.error)throw del.error;if(!del.data)throw new Error('Призначення не видалено. Перевір права доступу тренера.');
+  cloudStatus('Призначення видалено. Офіційний бій та результати змагання не змінені.','ok');
+  await refreshCoachInbox();await refreshMyAthletes();
+ }catch(e){cloudStatus('Не вдалося видалити призначення: '+e.message,'err');}
+}
+
 async function openCoachReviewBout(competitionId,boutKeyValue){
  try{
   const {data,error}=await supabaseClient.from('competitions').select('id,raw_data,name').eq('id',competitionId).single();if(error)throw error;
