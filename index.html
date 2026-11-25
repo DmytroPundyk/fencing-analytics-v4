@@ -75,6 +75,33 @@ nav .nav-language-toggle{position:static!important;display:inline-flex!important
 .bout-chat-compose textarea{flex:1;min-width:0;resize:vertical}
 .bout-chat-compose button{white-space:nowrap}
 @media(max-width:600px){.chat-message{max-width:94%}.bout-chat-compose{flex-direction:column;align-items:stretch}.bout-chat-compose button{width:100%}}
+
+/* Team import: equal columns and aligned file controls */
+#teamImportCard .team-import-grid{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ align-items:start;
+ gap:12px;
+}
+#teamImportCard .team-import-field{min-width:0;display:flex;flex-direction:column}
+#teamImportCard .team-import-field label{
+ min-height:42px;
+ display:flex;
+ align-items:flex-end;
+ font-size:14px;
+ line-height:1.25;
+ margin:0 0 7px;
+}
+#teamImportCard .team-import-field input[type=file]{
+ width:100%;
+ min-width:0;
+ min-height:46px;
+}
+#teamImportCard .team-import-field .hint{margin:8px 0 0;min-height:20px}
+@media(max-width:850px){
+ #teamImportCard .team-import-grid{grid-template-columns:1fr}
+ #teamImportCard .team-import-field label{min-height:0;margin:0 0 7px}
+}
 </style>
 </head>
 <body>
@@ -125,10 +152,10 @@ nav .nav-language-toggle{position:static!important;display:inline-flex!important
  <div class="card" id="teamImportCard">
   <h3>Імпорт командної зустрічі — Fencing Time Live V6</h3>
   <p class="hint">Завантаж один Tableau, один Results і всі JSON Match Details потрібних командних зустрічей з цього змагання. Кожен Match Details — окрема зустріч.</p>
-  <div class="grid">
-   <div><label for="teamTableauFile">1. Tableau командного турніру</label><input id="teamTableauFile" type="file" accept=".json,application/json"></div>
-   <div><label for="teamResultsFile">2. Results командного турніру</label><input id="teamResultsFile" type="file" accept=".json,application/json"></div>
-   <div><label for="teamDetailsFile">3. Match Details — одна або декілька зустрічей</label><input id="teamDetailsFile" type="file" accept=".json,application/json" multiple><p class="hint" id="teamDetailsCount">Можна вибрати декілька JSON-файлів одночасно.</p></div>
+  <div class="grid team-import-grid">
+   <div class="team-import-field"><label for="teamTableauFile">1. Tableau командного турніру</label><input id="teamTableauFile" type="file" accept=".json,application/json"></div>
+   <div class="team-import-field"><label for="teamResultsFile">2. Results командного турніру</label><input id="teamResultsFile" type="file" accept=".json,application/json"></div>
+   <div class="team-import-field"><label for="teamDetailsFile">3. Match Details — одна або декілька зустрічей</label><input id="teamDetailsFile" type="file" accept=".json,application/json" multiple><p class="hint" id="teamDetailsCount">Можна вибрати декілька JSON-файлів одночасно.</p></div>
   </div>
   <div class="row" style="margin-top:10px"><button class="primary" id="teamImportBtn">Імпортувати командні зустрічі</button></div>
   <div id="teamImportStatus" class="status">Очікую на Tableau, Results і щонайменше один Match Details.</div>
